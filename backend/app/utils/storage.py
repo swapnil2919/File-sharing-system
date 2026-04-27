@@ -10,6 +10,9 @@ class StorageError(Exception):
     pass
 
 
+_bucket_ready = False
+
+
 def _ensure_storage_config():
     if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
         raise StorageError(
@@ -37,6 +40,38 @@ def _object_url(object_path, authenticated=True):
     )
 
 
+async def _ensure_bucket_exists(client):
+    global _bucket_ready
+
+    if _bucket_ready:
+        return
+
+    response = await client.get(
+        f"{SUPABASE_URL}/storage/v1/bucket/{SUPABASE_STORAGE_BUCKET}",
+        headers=_storage_headers(),
+    )
+    if response.status_code == 200:
+        _bucket_ready = True
+        return
+
+    if response.status_code == 404:
+        create_response = await client.post(
+            f"{SUPABASE_URL}/storage/v1/bucket",
+            headers=_storage_headers("application/json"),
+            json={
+                "id": SUPABASE_STORAGE_BUCKET,
+                "name": SUPABASE_STORAGE_BUCKET,
+                "public": False,
+            },
+        )
+        if create_response.status_code >= 400:
+            raise StorageError(create_response.text or "Failed to create storage bucket")
+        _bucket_ready = True
+        return
+
+    raise StorageError(response.text or "Failed to check storage bucket")
+
+
 async def save_file(file):
     _ensure_storage_config()
     content = await file.read()
@@ -45,6 +80,7 @@ async def save_file(file):
     content_type = file.content_type or "application/octet-stream"
 
     async with httpx.AsyncClient(timeout=60.0) as client:
+        await _ensure_bucket_exists(client)
         response = await client.post(
             _object_url(object_path, authenticated=False),
             headers=_storage_headers(content_type),
@@ -59,7 +95,9 @@ async def save_file(file):
 
 async def download_file(object_path):
     _ensure_storage_config()
+
     async with httpx.AsyncClient(timeout=60.0) as client:
+        await _ensure_bucket_exists(client)
         response = await client.get(
             _object_url(object_path, authenticated=True),
             headers=_storage_headers(),
@@ -81,7 +119,9 @@ async def delete_files(object_paths):
     _ensure_storage_config()
 
     async with httpx.AsyncClient(timeout=60.0) as client:
-        response = await client.delete(
+        await _ensure_bucket_exists(client)
+        response = await client.request(
+            "DELETE",
             f"{SUPABASE_URL}/storage/v1/object/{SUPABASE_STORAGE_BUCKET}",
             headers=_storage_headers("application/json"),
             json={"prefixes": object_paths},
