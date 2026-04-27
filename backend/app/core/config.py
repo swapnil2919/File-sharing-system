@@ -4,7 +4,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+SUPABASE_STORAGE_BUCKET = os.getenv("SUPABASE_STORAGE_BUCKET", "shared-files")
+FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "*")
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
 
 ALLOWED_TYPES = [

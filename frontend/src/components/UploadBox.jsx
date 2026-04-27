@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { uploadFile } from "../services/api";
+import { API_BASE_URL, uploadFile } from "../services/api";
 
 export default function UploadBox() {
   const [file, setFile] = useState(null);
@@ -22,6 +22,10 @@ export default function UploadBox() {
       alert("Upload failed");
     }
   };
+
+  const resolvedDownloadUrl = result?.download_url?.startsWith("http")
+    ? result.download_url
+    : `${API_BASE_URL}${result?.download_url || ""}`;
 
   return (
     <div className="card feature-card">
@@ -69,7 +73,7 @@ export default function UploadBox() {
           <p>
             <strong>Hash:</strong> {result.file_hash}
           </p>
-          <a href={result.download_url} target="_blank" rel="noreferrer">
+          <a href={resolvedDownloadUrl} target="_blank" rel="noreferrer">
             Open download link
           </a>
         </div>

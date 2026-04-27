@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from app.models.file import File
 from app.utils.security import generate_hash
 
-async def create_file_record(db, file, path, stored_name, days, one_time):
+async def create_file_record(db, file, path, stored_name, days, one_time, file_size):
 
     if days and days > 7:
         raise ValueError("Max 7 days allowed")
@@ -16,7 +16,7 @@ async def create_file_record(db, file, path, stored_name, days, one_time):
     db_file = File(
         original_filename=file.filename,
         stored_filename=stored_name,
-        file_size=file.size,
+        file_size=file_size,
         file_type=file.content_type,
         file_path=path,
         file_hash=file_hash,
