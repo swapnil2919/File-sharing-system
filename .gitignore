@@ -24,7 +24,7 @@ lerna-debug.log*
 *.local
 
 # Environment
-.env
+.env*
 backend/.env
 frontend/.env
 
