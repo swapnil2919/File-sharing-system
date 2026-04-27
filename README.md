@@ -48,7 +48,7 @@ pip install -r backend/requirements.txt
 DATABASE_URL=postgresql+asyncpg://username:password@localhost/dbname
 SUPABASE_URL=https://your-project-ref.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-SUPABASE_STORAGE_BUCKET=shared-files
+SUPABASE_STORAGE_BUCKET=file-sharing
 FRONTEND_ORIGIN=http://localhost:5173
 ```
 
