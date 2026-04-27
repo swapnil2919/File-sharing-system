@@ -27,6 +27,14 @@ export default function UploadBox() {
     ? result.download_url
     : `${API_BASE_URL}${result?.download_url || ""}`;
 
+  const copyToClipboard = async (value) => {
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch (err) {
+      alert("Copy failed. Please copy it manually.");
+    }
+  };
+
   return (
     <div className="card feature-card">
       <div className="card-heading">
@@ -70,12 +78,38 @@ export default function UploadBox() {
 
       {result && (
         <div className="result">
-          <p>
-            <strong>Hash:</strong> {result.file_hash}
-          </p>
-          <a href={resolvedDownloadUrl} target="_blank" rel="noreferrer">
-            Open download link
-          </a>
+          <p className="result-title">Share details ready</p>
+
+          <div className="result-block">
+            <span className="result-label">Download URL</span>
+            <code>{resolvedDownloadUrl}</code>
+            <div className="result-actions">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => copyToClipboard(resolvedDownloadUrl)}
+              >
+                Copy URL
+              </button>
+              <a href={resolvedDownloadUrl} target="_blank" rel="noreferrer">
+                Open link
+              </a>
+            </div>
+          </div>
+
+          <div className="result-block">
+            <span className="result-label">Hash</span>
+            <code>{result.file_hash}</code>
+            <div className="result-actions">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => copyToClipboard(result.file_hash)}
+              >
+                Copy hash
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
